@@ -1,0 +1,11 @@
+version: '3'
+services:
+  postgres:
+    image: postgres
+    container_name: mytemplatedb
+    environment:
+      - POSTGRES_PASSWORD=qwerty
+      - POSTGRES_USER=test_db_user
+    ports:
+      - "54320:5432"
+
