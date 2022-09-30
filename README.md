@@ -107,14 +107,92 @@ where id=5;
   5 | Соединённое Королевство Великобритании и Северной Ирландии
 
 ````
+# Лаба №6
+
+## `GROUP BY` queries
+
+### Запрос с внутренним 
+
+```
+ select vouchers.id, country_id_in, client_id, countries.name  from vouchers inner join countries on countries.id = country_id_in;
+ id | country_id_in | client_id |                            name                            
+----+---------------+-----------+------------------------------------------------------------
+  2 |             9 |     36923 | Германия
+  3 |             4 |     36924 | Россия
+  4 |             5 |     36922 | Соединённое Королевство Великобритании и Северной Ирландии
+  5 |             4 |     36925 | Россия
 
 
 
+select
+    inner_injection.count, name
+from 
+    (select
+        country_id_in, count(*) 
+    from
+        vouchers
+    group by 
+        vouchers.country_id_in)
+as
+    inner_injection 
+inner join
+    countries
+on
+    countries.id = inner_injection.country_id_in;
+ count |                            name                            
+-------+------------------------------------------------------------
+     1 | Германия
+     1 | Соединённое Королевство Великобритании и Северной Ирландии
+     2 | Россия
 
+```
 
+### Запрос с `HAVING`
 
+```
+select
+    inner_injection.count, name
+from 
+    (select
+        country_id_in, count(*) 
+    from
+        vouchers
+    group by 
+        vouchers.country_id_in
+    having
+        count(*) = 2)
+as
+    inner_injection 
+inner join
+    countries
+on
+    countries.id = inner_injection.country_id_in;
+    
+    
+ count |  name  
+-------+--------
+     2 | Россия
 
+```
 
-##
+## `UNION` queries
+
+```
+(select id, name from countries) union (select * from statuses);
+ 
+  id |                            name                            
+----+------------------------------------------------------------
+  3 | Ваще супер
+  6 | Норвегия
+  5 | Соединённое Королевство Великобритании и Северной Ирландии
+  2 | Премиум класс
+  1 | Горячая путёвка
+  9 | Германия
+  4 | Россия
+ 10 | Канада
+  7 | Дания
+  8 | Швеция
+
+```
 
 
