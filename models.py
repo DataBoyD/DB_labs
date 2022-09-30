@@ -1,6 +1,4 @@
 from db_connection import *
-from app import db
-from sqlalchemy import Column, text, Date, String, Integer, BigInteger, ForeignKey, Boolean, Table
 from sqlalchemy.orm import relationship
 
 
@@ -116,4 +114,4 @@ class Voucher(Base):
         return f"{self.id}: {self.firm.name} -- {self.country_in} -> {self.country_out}"
 
 
-Base.metadata.create_all()
+# Base.metadata.create_all()

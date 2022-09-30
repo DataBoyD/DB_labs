@@ -1,5 +1,14 @@
 version: '3'
 services:
+
+  web:
+    depends_on:
+      - postgres
+    build: .
+    container_name: web
+    ports:
+      - "5001:5001"
+
   postgres:
     image: postgres
     container_name: mytemplatedb
@@ -8,4 +17,8 @@ services:
       - POSTGRES_USER=test_db_user
     ports:
       - "54320:5432"
+
+
+
+
 

@@ -7,4 +7,8 @@ from flask_sqlalchemy import SQLAlchemy
 
 app = Flask(__name__)
 app.config.from_object(Configuration)
-db = SQLAlchemy(app)
+
+
+@app.route("/")
+def index():
+    return "<h1> Hello! </h1>"
