@@ -1,9 +1,9 @@
 ![](lab-schema.png)
 
-
 ## SELECT queries
 
 ### Обычный запрос со всеми полями
+
 ```
 select * from clients;
 
@@ -25,8 +25,8 @@ select * from clients where age = 21;
 -------+------------+-------------+-----------+--------------+-----
  36922 | Дмитрий    | Алексеевич  | Сиднев    | 89176002912  |  21
 ```
-### Обычный запрос с группирующей функцией `сount(...)`
 
+### Обычный запрос с группирующей функцией `сount(...)`
 
 ```
 select count(id) from clients where age > 21;
@@ -35,6 +35,7 @@ select count(id) from clients where age > 21;
 -------
      4
 ```
+
 ### Запрос с `INNER JOIN`
 
 ```
@@ -107,11 +108,12 @@ where id=5;
   5 | Соединённое Королевство Великобритании и Северной Ирландии
 
 ````
+
 # Лаба №6
 
 ## `GROUP BY` queries
 
-### Запрос с внутренним 
+### Запрос с внутренним
 
 ```
  select vouchers.id, country_id_in, client_id, countries.name  from vouchers inner join countries on countries.id = country_id_in;
@@ -221,10 +223,10 @@ on
 
 ![alt text](static/lab7/6.png)
 
-
 ## К вопросу о разграничении прав доступа к `CRUD` операциям
 
 Создадим рядового пользователя и пожалуем ему титут наблюдателя на таблицу клиентов
+
 ```
 test_db_user=# CREATE USER non_superuser WITH PASSWORD '12345';
 CREATE ROLE
@@ -234,6 +236,7 @@ GRANT
 ```
 
 Проверим, как работает делегирование полномочий
+
 ```
 lab_2=# \q
 root@21993a4b2de6:/# psql lab_2 non_superuser
@@ -251,6 +254,7 @@ lab_2=> select * from clients;
  36927 | f          | f           | f           | 234          |  34
 (6 rows)
 ```
+
 А теперь запрещённое действие - просмотр таблицы с путёвками
 
 ```
@@ -280,4 +284,75 @@ lab_2=> select * from vouchers;
 
 Теперь `non_superuser` имеет все права суперпользователя и владельца **БД**
 
+# Лаба №8
+
+### Представления (`Views`)
+
+```
+create view vouchers_from_germany as
+    select
+        * 
+    from
+        vouchers
+    where 
+        country_id_out=9;
+        
+CREATE VIEW
+
+
+lab_2=# select id from vouchers_from_germany;
+ id 
+----
+  6
+  4
+(2 rows)
+
+lab_2=# select
+        v.id as voucher_id, a.first_name, a.last_name
+   from 
+        vouchers_from_germany as v
+   inner join 
+        clients as a 
+   on 
+        a.id=client_id ;
+        
+        
+ voucher_id | first_name | last_name  
+------------+------------+------------
+          6 | Сергей     | Рахманинов
+          4 | Дмитрий    | Сиднев
+(2 rows)
+
+
+```
+
+### Функции
+
+
+```
+CREATE OR REPLACE FUNCTION meanPrice (country_id_out integer)
+RETURNS
+    double precision AS 
+    $$ SELECT 
+        AVG(price) 
+    from 
+        vouchers
+    where 
+        country_id_out=meanPrice.country_id_out; $$ LANGUAGE SQL;
+        
+        
+        
+CREATE FUNCTION
+lab_2=# select meanPrice(9);
+ meanprice 
+-----------
+     82500
+(1 row)
+
+lab_2=# select meanPrice(7);
+ meanprice 
+-----------
+      1234
+(1 row)
+```
 
