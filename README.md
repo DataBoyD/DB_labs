@@ -224,6 +224,7 @@ on
 ![alt text](static/lab7/6.png)
 
 # Лаба №10
+
 ## К вопросу о разграничении прав доступа к `CRUD` операциям
 
 Создадим рядового пользователя и пожалуем ему титут наблюдателя на таблицу клиентов
@@ -329,7 +330,6 @@ lab_2=# select
 
 ### Функции
 
-
 ```
 CREATE OR REPLACE FUNCTION meanPrice (country_id_out integer)
 RETURNS
@@ -357,3 +357,102 @@ lab_2=# select meanPrice(7);
 (1 row)
 ```
 
+# Лаба №9
+
+## Триггеры
+
+### Триггер на обновление данных о клиенте
+
+```postgresql
+create table if not exists users_log
+(
+    op_id       serial primary key,
+    user_id     int references clients (id),
+    change_time time,
+    change_date date,
+    op_type     varchar(100)
+
+);
+
+create or replace function log_user_changes()
+    returns trigger as
+$$
+begin
+    insert into users_log(user_id, change_time, change_date, op_type)
+    values (OLD.id, current_time, current_date, 'update');
+    return NEW;
+end;
+$$
+    language 'plpgsql';
+
+create trigger trg_trace_update_of_client_info
+    after update
+    on clients
+    for each row
+execute procedure log_user_changes();
+
+```
+
+### Триггер на создание клиента
+
+```postgresql
+create or replace function log_user_creating()
+    returns trigger as
+$$
+begin
+    insert into users_log(user_id, change_time, change_date, op_type)
+    values (NEW.id, current_time, current_date, 'create');
+    return NEW;
+end;
+$$
+    language 'plpgsql';
+
+create trigger trg_trace_creating_of_client_info
+    after insert
+    on clients
+    for each row
+execute procedure log_user_creating();
+
+```
+
+```postgresql
+lab_2=#
+select *
+from users_log;
+op_id | user_id |   change_time   | change_date | op_type 
+-------+---------+-----------------+-------------+---------
+     1 |   36923 | 22:39:49.360204 | 2022-11-17  |
+update
+    2 | | 22:39:52.245367 | 2022-11-17 |
+create
+3 |   36929 | 22:43:22.377476 | 2022-11-17  | create
+    (3 rows)
+```
+
+## Транзакции
+
+Пусть где-то существует турфирма, которая при сдаче путёвки вносит клиента в чёрный список.
+Создадим такую таблицу `black_list`
+
+```postgresql
+create table black_list
+(
+    id      serial primary key,
+    user_id int references clients (id)
+
+);
+```
+
+А затем выполним атомарную операцию
+
+```postgresql
+begin;
+
+delete
+from vouchers
+where client_id = 36922; --- типо я
+insert into black_list(user_id)
+values (36922);
+
+commit;
+```
