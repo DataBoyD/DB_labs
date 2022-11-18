@@ -455,4 +455,6 @@ insert into black_list(user_id)
 values (36922);
 
 commit;
+
+COMMIT
 ```
