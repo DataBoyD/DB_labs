@@ -10,17 +10,26 @@ session_factory = sessionmaker(bind=engine)
 Session = scoped_session(session_factory=session_factory)
 session = Session()
 
+
 class CustomMixin(ModelView):
     can_export = True
 
 
+class MyModelView(ModelView):
+    def is_accessible(self):
+       return current_user.is_authenticated
+
+
 admin = Admin(app)
-admin.add_view(CustomMixin(Status, session, name="Статус"))
-admin.add_view(CustomMixin(Country, session, name="Страна"))
-admin.add_view(CustomMixin(AirlineCompany, session, name="Аэрокомпания"))
-admin.add_view(CustomMixin(Voucher, session, name="Путёвка"))
-admin.add_view(CustomMixin(Client, session, name="Клиент"))
-admin.add_view(CustomMixin(TourFirm, session, name="Турфирма"))
+
+admin.add_view(MyModelView(Status, session, name="Статус"))
+admin.add_view(MyModelView(Country, session, name="Страна"))
+admin.add_view(MyModelView(AirlineCompany, session, name="Аэрокомпания"))
+admin.add_view(MyModelView(Voucher, session, name="Путёвка"))
+admin.add_view(MyModelView(Client, session, name="Клиент"))
+admin.add_view(MyModelView(TourFirm, session, name="Турфирма"))
+admin.add_view(MyModelView(Role, session, name="Роли"))
+admin.add_view(MyModelView(User, session, name="Пользователи"))
 
 
 

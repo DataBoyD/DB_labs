@@ -1,0 +1,52 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="offset-md-3 col-md-6">
+
+<form method="POST">
+  <div class="mb-3">
+    <label for="exampleInputEmail1" class="form-label" >Введите вашу почту</label>
+    <input type="text" class="form-control" id="exampleInputEmail1" aria-describedby="emailHelp" name="email">
+    <div id="emailHelp" class="form-text">Ваши личные данные защищены шифрованием</div>
+  </div>
+  <div class="mb-3">
+    <label for="exampleInputEmail1" class="form-label" >Введите ваше имя</label>
+    <input type="text" class="form-control" id="exampleInputEmail1" aria-describedby="emailHelp" name="name">
+    <div id="emailHelp" class="form-text">Ваши личные данные защищены шифрованием</div>
+  </div>
+  <div class="mb-3">
+    <label for="exampleInputEmail1" class="form-label" >Введите вашу фамилию</label>
+    <input type="text" class="form-control" id="exampleInputEmail1" aria-describedby="emailHelp" name="surname">
+    <div id="emailHelp" class="form-text">Ваши личные данные защищены шифрованием</div>
+  </div>
+
+  <div class="mb-3">
+    <label for="exampleInputPassword1" class="form-label">Придумайте пароль</label>
+    <input type="password" class="form-control" id="exampleInputPassword1" name="password">
+  </div>
+
+  <button type="submit" class="btn btn-primary">Зарегистрироваться</button>
+  <a href="{{url_for('auth_system.login')}}" class="btn btn-danger">Войти </a>
+
+</form>
+</div>
+{% endblock %}
+<!--<form method="POST">-->
+<!--    <td> Введите Ваш логин </td>-->
+<!--    <td> <input type="text" name="login"> </td>-->
+<!--    <p> </p>-->
+<!--    <td> Введите Ваш пароль </td>-->
+<!--    <td> <input type="password"  name="password"> </td>-->
+<!--    <p> </p>-->
+
+<!--&lt;!&ndash;    <td> Введите Ваш логин </td>&ndash;&gt;-->
+<!--    <td> <input type="submit"> </td>-->
+<!--</form>-->
+
+
+<!--</body>-->
+<!--</html>-->
+
+
+
+

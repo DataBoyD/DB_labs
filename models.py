@@ -1,6 +1,13 @@
-from db_connection import *
-from sqlalchemy.orm import relationship
+import werkzeug
+from flask_login import current_user
+from flask_security import RoleMixin, UserMixin
 
+from db_connection import *
+from sqlalchemy.orm import relationship, backref, sessionmaker, scoped_session
+
+session_factory = sessionmaker(bind=engine)
+Session = scoped_session(session_factory=session_factory)
+session = Session()
 
 airline_companies_tour_firms = Table(
     "airline_companies_tour_firms",
@@ -112,6 +119,57 @@ class Voucher(Base):
 
     def __repr__(self):
         return f"{self.id}: {self.firm.name} -- {self.country_in} -> {self.country_out}"
+
+
+roles_users = Table('roles_users',
+                    Base.metadata,
+        Column('users_id', Integer(), ForeignKey('users.id')),
+        Column('roles_id', Integer(), ForeignKey('roles.id')))
+
+
+class Role(Base):
+    __tablename__ = 'roles'
+
+    id = Column(Integer(), primary_key=True)
+    name = Column(String(80), unique=True)
+    description = Column(String(255))
+
+
+class MyUserMixin(UserMixin):
+    @staticmethod
+    def has_role(name: str) -> bool:
+        # role = Role.query.filter_by(name=name).first()
+        role = Session.query(Role).filter_by(name=name).first()
+        if role and current_user.role and role == current_user.role:
+            return True
+        else:
+            return False
+
+    def check_password(self, password: str) -> bool:
+        return self.password == password
+        # return werkzeug.security.check_password_hash(self.password, password)
+
+    def encrypt_password(self):
+        # self.password = werkzeug.security.generate_password_hash(self.password)
+        ...
+
+
+class User(Base, MyUserMixin):
+    __tablename__ = 'users'
+
+    id = Column(Integer, primary_key=True)
+    email = Column(String(255), unique=True)
+    password = Column(String(255))
+    active = Column(Boolean())
+    confirmed_at = Column(DateTime())
+    roles = relationship('Role', secondary=roles_users,
+                            backref=backref('users', lazy='dynamic'))
+
+    def __str__(self):
+        return f"{self.id}: {self.email}"
+
+    def __repr__(self):
+        return f"{self.id}: {self.email}"
 
 
 # Base.metadata.create_all()
